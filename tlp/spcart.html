@@ -1,0 +1,27 @@
+<h5>您的购物车</h5>
+<div ng-if="spcartlist.length > 0" class="textsize18">
+<table class="bordered striped" >
+	<thead>
+		<tr>
+			<th>商品名称</th>
+			<th>单价</th>
+			<th>数量</th>
+			<th>小计</th>
+			<th>删除</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="keys in spcartlist">
+			<td>{{keys.name}}</td>
+			<td>￥:{{keys.price}}</td>
+			<td><input ng-change="resetshulian()" type="Number" ng-model="keys.shulian"></td>
+			<td>￥:{{keys.xiaoji}}</td>
+			<td><button ng-click="del(keys.id)" class="btn red"><em class="fa fa-bitbucket"></em>删除</button></td>
+		</tr>
+	</tbody>
+</table>
+<h6 class="clearfix"><span class="left"></span><button class="btn light-green darken-3 right">结算</button></h6>
+</div>
+<div ng-if="spcartlist.length < 1" class="card-panel orange lighten-3 textsize18">
+	<span>这里没有商品<a ui-sref-active="active" ui-sref="list">点击返回购物</a></span>	
+</div>

@@ -1,0 +1,18 @@
+<h5 class="center">全部</h5>
+<div class="row card-panel grey lighten-2 textsize18 valign-wrapper" ng-repeat="likeys in list">
+    <div class="col s3 valign">
+        <h5>{{likeys.name}}</h5>
+    </div>
+    <div class="col s6 valign">
+      {{likeys.description}}
+    </div>
+    <div class="col s3 listtions valign">
+        <span class="blue darken-3">￥{{likeys.price}}</span>
+        <button class="btn light-green darken-3" ng-click="addtoplist(likeys.id)"><em class="fa fa-shopping-cart mr5"></em>({{likeys.shulian}})添加</button>
+    </div>
+</div>
+<div class="clearfix">
+    <div class="pagination right" paging show-prev-next="true" show-first-last="true" page="Pag_ing.page" page-size="Pag_ing.pagesize" total="Pag_ing.total" paging-action="DoCtrlPagingAct('Paging Clicked', page, pageSize, total)">
+    </div>
+</div>
+

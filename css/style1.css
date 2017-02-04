@@ -1,0 +1,50 @@
+
+
+
+
+
+.box{
+ width:200px;
+height:200px;
+background-color: #ccc;
+transition: transform 300ms ease-in-out
+
+}
+.box:hover{
+transform:translate(200px,150px) rotate(20deg)
+}
+
+
+
+.bottom-sheet{
+	z-index: 1003;
+	display: block;
+} 
+
+
+.close{
+ animation: top_boott 2s forwards
+}
+
+.open{
+	 animation: boott_top 0.3s forwards
+}
+
+@keyframes boott_top
+{
+	from {bottom:-100%;opacity: 0.1;}
+	to {bottom: 0%;opacity: 1;}
+}
+
+@keyframes top_boott
+{
+	from {bottom:0%;opacity: 1;}
+	to {bottom: -100%;opacity: 0.1;}
+}
+
+.bgopen{
+	z-index: 1002; 
+	display: block; 
+	opacity: 0.5;
+}
+

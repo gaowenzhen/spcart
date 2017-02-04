@@ -1,0 +1,496 @@
+
+<h5>项目说明</h5>
+<div class="font-text14">
+	<p>.购物车例子，培训公司内部教程</p>
+	<p>
+	商品列表，购物车内列表，商品列表点击添加，更新到到头部统计，和购物车内列表小统计和数量，是angular1.x基本应用入门教程</p>
+	<p>.程序模块</p>
+	<p>
+		<ul>
+        <li>
+            项目程序逻辑是，商品列表，购物车列表，和头部的购物统计 
+            主要用到 .$emit()和.$on()实现控制器之间数据交换，
+            为用到数据库，和用户系统，购物车数据，保存在全局变量中。
+         </li>
+		   <li>index.html-头部导航，控制器：topnavctrol<br/>
+		   和路由容器ui-view
+		   </li>
+		   <li>路由部分用到的是ui.router</li>
+			<li>list.html-文件商品列表，控制器：listctrl</li>
+         <li>spcart.html-购物车列表，控制器：spcartctrl</li>         
+		</ul>
+
+	</p>
+
+</div>
+
+<h5>创建myapp项目</h5>
+<textarea name="" id="code0" class="CodeMirror">
+var myapp = angular.module('myapp', ["ui.router", "bw.paging"]);
+myapp.run(function($rootScope) {
+    //购物车内列表数据
+    $rootScope.spcartlist = [];
+});
+</textarea>
+
+<h5>路由</h5>
+<textarea name="" id="code1">
+
+myapp.config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
+
+    //购物列表
+    $stateProvider.state({
+        name: "list",
+        url: "/list",
+        templateUrl: "tlp/list.html",
+        controller: "listctrl"
+    });
+
+    //购物车列表
+    $stateProvider.state({
+        name: "spcart",
+        url: "/spcart",
+        templateUrl: "tlp/spcart.html",
+        controller: "spcartctrl"
+    });
+
+    //第一次加载时-默认跳转
+    $urlRouterProvider.otherwise('/list');
+
+
+}]);
+
+</textarea>
+
+<h5>头部购物车统计,控制器(topnavctrol)，模板在index.html中</h5>
+<textarea id="topnavctrol">
+//头部导航--控制器-购物车统计处
+myapp.controller('topnavctrol', ['$scope', '$rootScope', function($scope, $rootScope) {
+
+
+    //购物件数--gwc
+    //购物总价数--cont
+
+    $scope.topdata = {
+        gwc: 0,
+        cont: 0
+    };
+
+
+
+    //头部监听--（等着接收查看购物车列表里操作时）
+
+    $rootScope.$on("retopdata", function(e, d) {
+        $scope.topdata = d;
+    });
+
+
+    //头部监听--（等着接收）创建购物车内数据
+    $rootScope.$on("resettopdata", function(evnte, d) {
+
+        //从购物车列表--取出一条数据
+        //购物车内列表数据
+        var spcartlist = angular.copy($rootScope.spcartlist);
+        var newspcartlist = spcartlist.filter(function(itmes) {
+            return itmes.id == d.id;
+        });
+
+        //购物车列表如果没有这个商品就添加
+        if (newspcartlist.length < 1) {
+            spcartlist.push(d);
+        } else {
+            //购物车列表如果有这个商品，就修改商品数量值
+            spcartlist.map(function(itme, i) {
+                if (itme.id == d.id) {
+                    //数量
+                    itme.shulian = itme.shulian + 1;
+                    //小计
+                    itme.xiaoji = itme.shulian * itme.price;
+                }
+            });
+        }
+
+        $rootScope.spcartlist = spcartlist;
+
+        settopdata();
+    });
+
+
+
+
+
+    //统计购物车内总数和购物条数
+    var settopdata = function() {
+
+        var getmydata = mydataall.get("mydata");
+
+
+        //价格总金额
+        var cont = 0,
+            gwc = 0;
+
+        //取出购物车列表，来遍历，统计
+        var spcartlist = angular.copy($rootScope.spcartlist);
+        for (var i = 0; i < spcartlist.length; i++) {
+            var itmes = spcartlist[i];
+            var price = itmes.price;
+            var suncont = parseInt(price) * parseInt(itmes.shulian);
+            cont = cont + suncont;
+            gwc = gwc + itmes.shulian;
+
+            if (getmydata) {
+
+                for (var mi = 0; mi < getmydata.length; mi++) {
+                    var itemgetmyap = getmydata[mi];
+                    if (itemgetmyap.id == itmes.id) {
+
+                        itemgetmyap.shulian = itmes.shulian;
+                        break;
+                    }
+                }
+
+            }
+
+        }
+
+        //总金额         
+        $scope.topdata.cont = cont;
+        //件数
+        $scope.topdata.gwc = gwc;  
+
+      mydataall.put("mydata", getmydata);                       
+      $rootScope.$emit("relist","");
+
+    }
+
+
+
+}]);
+</textarea>
+
+<h5>index.html主页文件</h5>
+<textarea name="" id="index" class="CodeMirror">
+
+<body ng-app="myapp">
+    <header>
+        <nav class="teal lighten-1 manav">
+            <div class="nav-wrapper">
+                <div class="clearfix textsize18 w98" ng-controller="topnavctrol">
+                    <div class="left">
+                        <span>gaowenzhen@msn.com</span>
+                    </div>
+                    <div class="right">                      
+                        <span class="lrmar"><em class="fa fa-shopping-bag"></em>购物车:{{topdata.gwc}}件数</span>
+                        <span><em class="fa fa-cc-visa"></em>总计:{{topdata.cont}}</span>
+                        <em></em>
+                        <a ui-sref-active="active" ui-sref="spcart" class="btn light-green accent-4">查看购物车</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="divider"></div>
+    <main>
+        <div ui-view class="container"></div>
+    </main>
+    <script src="myapp/app.js" type="text/javascript" charset="utf-8"></script>
+</body>
+
+</textarea>
+
+<h5>购物车列表-控制器</h5>
+<textarea name="" id="code2">
+//商品列表控制器
+myapp.controller('listctrl', ['$scope', 'chraserver', '$rootScope', '$log', '$filter', 'angularLoad', '$q', '$cacheFactory', function($scope, chraserver, $rootScope, $log, $filter, angularLoad, $q, $cacheFactory) {
+
+    $scope.list = [];
+
+    //分页用法
+    $scope.Pag_ing = {
+        page: 1,
+        pagesize: 3,
+        total: 10
+    };
+
+       //更新分页列表
+    var newpagelist = function(size, to_page) {
+        var pagedataall = mydataall.get("mydata");
+        var red=angular.copy(pagedataall);
+        var _newpagelist = $filter("limitTo")(red, size, to_page);
+       // console.dir(_newpagelist);
+        $scope.list = _newpagelist;
+    }
+
+    //-----------------------------
+
+
+    if(mydataall=="" || typeof mydataall == "undefined"){
+      mydataall = $cacheFactory("dataall");  
+    }
+    
+    var getmydata = mydataall.get("mydata");
+    //防止多次请求服务端
+    if (!getmydata) {
+        var josndata = chraserver.getdata('data.json');
+        josndata.then(function(res) {
+            if (res.statusText == "OK") {
+
+                var dataall = res.data;
+                dataall.map(function(itmes, i) {
+                    itmes["shulian"] = 0;
+                });
+
+                mydataall.put("mydata", dataall);
+                getmydata = mydataall.get("mydata");
+
+                //数据，每页大小，开始提取数组位置
+          newpagelist($scope.Pag_ing.pagesize, 0);
+            }
+        });
+    } else {
+
+        newpagelist($scope.Pag_ing.pagesize, 0);
+
+    }
+
+    //添加购物车
+    $scope.addtoplist = function(id) {
+
+        //从总列表
+        var list = angular.copy($scope.list);
+        var newlist = list.filter(function(itmes) {
+            return itmes.id == id;
+        });
+
+
+        if (newlist.length > 0) {
+            //时间戳做订单id--ode_id
+            var _d = new Date();
+            var timestamp = Date.parse(_d) + _d.getMilliseconds();
+
+            //补字段，订单字段，小计字段，数量字段
+            //订单id
+            newlist[0].ode_id = timestamp + "_" + id;
+            //数量
+            newlist[0].shulian = 1;
+            //小计
+            newlist[0].xiaoji = newlist[0].price;
+          
+
+            $rootScope.$emit("resettopdata", newlist[0]);
+            
+        }
+    };
+
+    //-----------------------
+
+
+
+    //点击分页按钮时
+    $scope.DoCtrlPagingAct = function(text, page, pageSize, total) {
+        
+        //当前页page
+        //每页条数pageSize
+        //p_to_p数组内开始位置
+        var p_to_p = (page - 1) * pageSize;
+        //数据，每页大小，开始提取数组位置
+        newpagelist(pageSize, p_to_p);
+
+    };
+
+
+ 
+     //更新列表点击添加数量
+     $rootScope.$on("relist",function(e,redata){
+         var newpage=$scope.Pag_ing.page;
+         if(newpage > 0 ){
+           newpage=newpage - 1;
+         };
+         newpagelist($scope.Pag_ing.pagesize, newpage);
+     });
+
+}]);
+
+</textarea>
+
+<h5>购物车模板</h5>
+<textarea name="" id="code3">
+
+<h5 class="center">全部</h5>
+<div class="row card-panel grey lighten-2 textsize18 valign-wrapper" ng-repeat="likeys in list">
+    <div class="col s3 valign">
+        <h5>{{likeys.name}}</h5>
+    </div>
+    <div class="col s6 valign">
+      {{likeys.description}}
+    </div>
+    <div class="col s3 listtions valign">
+        <span class="blue darken-3">￥{{likeys.price}}</span>
+        <button class="btn light-green darken-3" ng-click="addtoplist(likeys.id)"><em class="fa fa-shopping-cart mr5"></em>添加</button>
+    </div>
+</div>
+<div class="clearfix">
+    <div class="pagination right" paging show-prev-next="true" show-first-last="true" page="Pag_ing.page" page-size="Pag_ing.pagesize" total="Pag_ing.total" paging-action="DoCtrlPagingAct('Paging Clicked', page, pageSize, total)">
+    </div>
+</div>
+
+
+</textarea>
+
+<h5>购物车列表-控制器</h5>
+<textarea name="" id="code4">
+
+//购物车列表
+myapp.controller('spcartctrl', ['$scope', '$rootScope', function($scope, $rootScope) {
+
+    $scope.spcartlist = angular.copy($rootScope.spcartlist);
+
+    $scope.del = function(id) {
+        var newspcartlist = angular.copy($scope.spcartlist);
+        newspcartlist.map(function(itmes, i) {
+
+            if (itmes.id == id) {
+                newspcartlist.splice(i, 1);
+            }
+
+        });
+
+
+
+        $scope.spcartlist = newspcartlist;
+
+
+        $scope.resetshulian();
+    }
+
+    //购物车列表内修改数量
+    $scope.resetshulian = function() {
+
+        var newspcartlist = angular.copy($scope.spcartlist);
+
+        //总价
+        var tjzj = 0;
+        //件数量
+        var jsconet = 0;
+        newspcartlist.map(function(itmes, i) {
+            //数量*单价
+            var xj = itmes.shulian * itmes.price;
+            //写入到小计内
+            itmes.xiaoji = xj;
+            //累计数量
+            jsconet = jsconet + itmes.shulian;
+            //累计，总计                     
+            tjzj = tjzj + itmes.xiaoji;
+        });
+
+        $scope.spcartlist = newspcartlist;
+        $rootScope.spcartlist = newspcartlist;
+        var topdata = {
+            gwc: jsconet,
+            cont: tjzj
+        };
+        $rootScope.$emit("retopdata", topdata);
+
+    }
+
+}]);
+
+</textarea>
+
+<h5>购物车列表-模板</h5>
+<textarea name="" id="code5">
+<h5>您的购物车</h5>
+<div ng-if="spcartlist.length > 0" class="textsize18">
+<table class="bordered striped" >
+	<thead>
+		<tr>
+			<th>商品名称</th>
+			<th>单价</th>
+			<th>数量</th>
+			<th>小计</th>
+			<th>删除</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="keys in spcartlist">
+			<td>{{keys.name}}</td>
+			<td>￥:{{keys.price}}</td>
+			<td><input ng-change="resetshulian()" type="Number" ng-model="keys.shulian"></td>
+			<td>￥:{{keys.xiaoji}}</td>
+			<td><button ng-click="del(keys.id)" class="btn red"><em class="fa fa-bitbucket"></em>删除</button></td>
+		</tr>
+	</tbody>
+</table>
+<h6 class="clearfix"><span class="left"></span><button class="btn light-green darken-3 right">结算</button></h6>
+</div>
+<div ng-if="spcartlist.length < 1" class="card-panel orange lighten-3 textsize18">
+	<span>这里没有商品<a ui-sref-active="active" ui-sref="list">点击返回购物</a></span>	
+</div>
+</textarea>
+
+<h5>商品数据-data.json</h5>
+<textarea name="" id="code6">
+[{
+    "id": 1,
+    "name": "1乔丹篮球",
+    "description": "乔丹篮球水泥地耐磨防滑室内外通用七号篮球特价正品学生比赛用球。竞赛用篮球。",
+    "category": "篮球",
+    "price": 111
+}, {
+    "id": 2,
+    "name": "2斯伯丁篮球",
+    "description": "斯伯丁篮球室外NBA篮球比赛用球耐磨水泥地lanqiu74-414，买一送四街头飓风室外耐磨标准7号篮球",
+    "category": "篮球",
+    "price": 169
+}, {
+    "id": 3,
+    "name": "3耐克篮球",
+    "description": "正品送配件耐克NIKE加厚纯牛皮乔丹签名NBA比赛CBA耐磨真皮篮球，抗菌，耐磨，牛皮。室内室外通用篮球，七号篮球(标准球)",
+    "category": "篮球",
+    "price": 188
+}, {
+    "id": 4,
+    "name": "4李宁篮球",
+    "description": "李宁篮球cba软pu皮手感好吸湿耐磨防滑比赛用球水泥地室内外包邮，正品李宁真皮手感CBA比赛球防滑耐磨掌控",
+    "category": "篮球",
+    "price": 235
+}, {
+    "id": 5,
+    "name": "5乔丹篮球",
+    "description": "乔丹篮球水泥地耐磨防滑室内外通用七号篮球特价正品学生比赛用球。竞赛用篮球。",
+    "category": "篮球",
+    "price": 113
+}, {
+    "id": 6,
+    "name": "6斯伯丁篮球",
+    "description": "斯伯丁篮球室外NBA篮球比赛用球耐磨水泥地lanqiu74-414，买一送四街头飓风室外耐磨标准7号篮球",
+    "category": "篮球",
+    "price": 160
+}, {
+    "id": 7,
+    "name": "7耐克篮球",
+    "description": "正品送配件耐克NIKE加厚纯牛皮乔丹签名NBA比赛CBA耐磨真皮篮球，抗菌，耐磨，牛皮。室内室外通用篮球，七号篮球(标准球)",
+    "category": "篮球",
+    "price": 182
+}, {
+    "id": 8,
+    "name": "8李宁篮球",
+    "description": "李宁篮球cba软pu皮手感好吸湿耐磨防滑比赛用球水泥地室内外包邮，正品李宁真皮手感CBA比赛球防滑耐磨掌控",
+    "category": "篮球",
+    "price": 230
+}, {
+    "id": 9,
+    "name": "9李宁篮球",
+    "description": "李宁篮球cba软pu皮手感好吸湿耐磨防滑比赛用球水泥地室内外包邮，正品李宁真皮手感CBA比赛球防滑耐磨掌控",
+    "category": "篮球",
+    "price": 240
+}, {
+    "id": 10,
+    "name": "10李宁篮球",
+    "description": "李宁篮球cba软pu皮手感好吸湿耐磨防滑比赛用球水泥地室内外包邮，正品李宁真皮手感CBA比赛球防滑耐磨掌控",
+    "category": "篮球",
+    "price": 250
+}]
+
+</textarea>
+<div class="tutorialboot"></div>

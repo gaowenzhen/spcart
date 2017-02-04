@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>购物车-例子</title>
+    <script src="lib/angular/angular.min.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="css/FortAwesome/css/font-awesome.min.css">
+    <script src="lib/angular/angular-ui-router.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/angular/paging.min.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" href="lib/materialize/css/materialize.min.css" />
+    <script src="lib/angular/angular-load.min.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css">
+    .lrmar {
+        display: inline-block;
+        margin: auto 10px;
+    }
+    
+    .listtions span {
+        border-radius: 5px;
+        line-height: 35px;
+        height: 35px;
+        color: #fff;
+        margin-bottom: 10px;
+        display: block;
+        width: 120px;
+        text-align: center;
+        font-size: 25px
+    }
+    
+    .w98 {
+        width: 98%;
+        margin: 0px auto
+    }
+    
+    .w98 em {
+        display: inline-block;
+        margin-right: 8px;
+    }
+    
+    .textsize18 {
+        font-size: 18px;
+    }
+    
+    .mr5 {
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .active {
+        color: #ddd;
+    }
+    
+    .font-text14 {
+        font-size: 18px;
+        line-height: 25px;
+    }
+    
+    .CodeMirror {
+        border: 1px solid #eee;
+        height: auto;
+    }
+    
+    .CodeMirror-scroll {
+        overflow-y: hidden;
+        overflow-x: auto;
+    }
+    
+    .tutorialboot {
+        padding: 30px 0px;
+    }
+    </style>
+</head>
+
+<body ng-app="myapp">
+    <header>
+        <nav class="teal lighten-1 manav">
+            <div class="nav-wrapper">
+                <div class="clearfix textsize18 w98" ng-controller="topnavctrol">
+                    <div class="left">
+                        <span>gaowenzhen@msn.com</span>
+                    </div>
+                    <div class="right">
+                        <a ui-sref-active="active" ui-sref="Tutorial"><em class="fa fa-sliders"></em>项目教程</a><em></em>
+                        <a ui-sref-active="active" ui-sref="list"><em class="fa fa-list-ol"></em>购物列表</a>
+                        <span class="lrmar"><em class="fa fa-shopping-bag"></em>购物车:{{topdata.gwc}}件数</span>
+                        <span><em class="fa fa-cc-visa"></em>总计:{{topdata.cont}}</span>
+                        <em></em>
+                        <a ui-sref-active="active" ui-sref="spcart" class="btn light-green accent-4">查看购物车</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="divider"></div>
+    <main>
+        <div ui-view class="container"></div>
+    </main>
+    <script src="myapp/app.js" type="text/javascript" charset="utf-8"></script>
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+var myapp = angular.module('myapp', []);
+
+myapp.controller('c1', ['$rootScope', function($rootScope){
+
+
+ // 监听（接收）
+$rootScope.$on("abc123",function(event,data){
+    //...fn[{}]
+})
+    
+}]);
+
+myapp.controller('c2', ['', function(){
+
+    //触发
+$scope.clickbutton=function(){
+    $rootScope.$emit("abc123",[{}]);
+}
+
+
+    
+}]);
+
+
+myapp.controller('c3', ['', function(){
+     // 监听（接收）
+$rootScope.$on("abc123",function(event,data){
+    //...data --[{}]
+})
+
+}]);
+
+//模板
+<div ng-controller="c1">
+   
+ 
+</div>
+
+ <div ng-controller="c2">
+     <button ng-click="clickbutton()"></button>
+  </div>
+
+<div ng-controller="c3"></div>
